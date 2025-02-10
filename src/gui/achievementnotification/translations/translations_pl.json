@@ -1,0 +1,33 @@
+{
+  "modname": "Powiadomienia o osiągnięciach w bitwie",
+  "checked": "zaznaczone",
+  "unchecked": "odznaczone",
+  "defaultValue": "domyślnie",
+  "intro.label": "Informacje o pliku konfiguracyjnym",
+  "intro.header": "Plik konfiguracyjny",
+  "intro.body": [
+    "Konfiguracja może także zostać zmieniona poprzez manualne modyfikacje pliku konfiguracyjnego.\n",
+    "Lokalizacja pliku konfiguracyjnego:\n",
+    "- [Folder gry WoT]/mods/configs/AchievementNotification/config.json"
+  ],
+  "intro.note": [
+    "Jeżeli chcesz wygenerować domyślny plik konfiguracyjny, usuń go a następnie uruchom grę ponownie"
+  ],
+  "common-settings.label": "Ustawienia ogólne",
+  "common-settings.first-display-time.label": "Pierwszy czas wyświetlania",
+  "common-settings.first-display-time.body": [
+    "Kontroluje, jak długo osiągnięcie jest wyświetlane.\n",
+    "Dla kilku osiągnięć wyświetlanych na raz, ten czas dotyczy tylko pierwszego osiągnięcia w grupie.\n",
+    "Kolejne osiągnięcia w takiej grupie używają czasu z parametru \"Następujący czas wyświetlania\"."
+  ],
+  "common-settings.consecutive-display-time.label": "Następujący czas wyświetlania",
+  "common-settings.consecutive-display-time.body": [
+    "Jeżeli kilka osiągnięć wystąpiło na raz, ten parametr kontroluje ",
+    "jak długo wyświetlać kolejne następujące po sobie osiągnięcia w grupie (po wyświetleniu pierwszego)."
+  ],
+  "achievements-settings.label": "Ustawienia osiągnięć",
+  "display-achievement.header": "Wyświetlaj osiągnięcie",
+  "display-achievement.body": [
+    "Jeżeli zaznaczone, wyświetlaj to osiągnięcie podczas bitwy."
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "modname": "Achievement Notification",
+  "checked": "checked",
+  "unchecked": "unchecked",
+  "defaultValue": "default",
+  "intro.label": "Config file info",
+  "intro.header": "Config file",
+  "intro.body": [
+    "Config can also be changed by manually altering config file.\n",
+    "Config file location:\n",
+    "- [WoT game directory]/mods/configs/AchievementNotification/config.json"
+  ],
+  "intro.note": [
+    "If you want to generate default config file, delete it and launch a game again"
+  ],
+  "common-settings.label": "Common settings",
+  "common-settings.first-display-time.label": "First display time",
+  "common-settings.first-display-time.body": [
+    "Controls how long should achievement be displayed.\n",
+    "For multiple achievements at once, this time applies only to first achievement in group.\n",
+    "The other achievements in group uses \"Consecutive display time\" parameter."
+  ],
+  "common-settings.consecutive-display-time.label": "Consecutive display time",
+  "common-settings.consecutive-display-time.body": [
+    "If multiple achievements occurred at once, this parameter controls ",
+    "how long should consecutive achievements in group (after first one) be displayed."
+  ],
+  "achievements-settings.label": "Achievements settings",
+  "display-achievement.header": "Display achievement",
+  "display-achievement.body": [
+    "If checked, display this achievement during battle."
+  ]
+}
