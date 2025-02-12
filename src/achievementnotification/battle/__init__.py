@@ -300,14 +300,14 @@ class BattleSession(object):
     def vehicleDeadEventsOfEnemy(self):
         return [
             vehicleDeadEvent for vehicleDeadEvent in self.vehicleDeadEvents
-            if vehicleDeadEvent.attacker.team != self.player.team
+            if vehicleDeadEvent.victim.team != self.player.team
         ]
 
     @property
     def vehicleDeadEventsOfAlly(self):
         return [
             vehicleDeadEvent for vehicleDeadEvent in self.vehicleDeadEvents
-            if vehicleDeadEvent.attacker.team == self.player.team
+            if vehicleDeadEvent.victim.team == self.player.team
         ]
 
     @property
@@ -464,9 +464,33 @@ class HitEvent(PrintableMixin, object):
     def isPierced(self):
         return bool(self.hitFlags & constants.VEHICLE_HIT_FLAGS.IS_ANY_PIERCING_MASK)
 
+    # we cannot use VEHICLE_HIT_FLAGS.IS_ANY_DAMAGE_MASK
+    # because those could signal isPierced=True and isDamaging=True for
+    # non-piercing hits that didn't do any damage, but pierced a device, without damaging it
+    # what is displayed as ricochet, but counted as damaging hit - which is not what we're looking for
+    #
+    # ... don't ask me how I know that
+    #
+    # we have different definition of "damaging hit" than WG in IS_ANY_DAMAGING_MASK
+    # by isDamaging we mean one of:
+    # * we dealt damage, what includes:
+    #     * piercing hit, at armor with positive DF (damage factor)
+    #     * non-piercing hit, but with damage, at armor with positive DF
+    # * we damaged (not exactly pierced) any module (device, gun, chassis) by any means
     @property
     def isDamaging(self):
-        return bool(self.hitFlags & constants.VEHICLE_HIT_FLAGS.IS_ANY_DAMAGE_MASK)
+        return bool(self.hitFlags & (
+                constants.VEHICLE_HIT_FLAGS.MATERIAL_WITH_POSITIVE_DF_PIERCED_BY_PROJECTILE |
+                constants.VEHICLE_HIT_FLAGS.MATERIAL_WITH_POSITIVE_DF_PIERCED_BY_EXPLOSION |
+                constants.VEHICLE_HIT_FLAGS.MATERIAL_WITH_POSITIVE_DF_NOT_PIERCED_WITH_DAMAGE_BY_PROJECTILE |
+                constants.VEHICLE_HIT_FLAGS.DEVICE_DAMAGED_BY_PROJECTILE |
+                constants.VEHICLE_HIT_FLAGS.DEVICE_DAMAGED_BY_EXPLOSION |
+                constants.VEHICLE_HIT_FLAGS.GUN_DAMAGED_BY_PROJECTILE |
+                constants.VEHICLE_HIT_FLAGS.GUN_DAMAGED_BY_EXPLOSION |
+                constants.VEHICLE_HIT_FLAGS.CHASSIS_DAMAGED_BY_PROJECTILE |
+                constants.VEHICLE_HIT_FLAGS.CHASSIS_DAMAGED_BY_EXPLOSION |
+                constants.VEHICLE_HIT_FLAGS.CHASSIS_DAMAGED_BY_RAMMING
+        ))
 
 
 class ReceivedHitEvent(PrintableMixin, object):

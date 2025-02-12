@@ -22,7 +22,7 @@ class SupporterListener(BattleListener):
         )
 
         vehiclesIdsSupportedByPlayerButNotKilledByPlayer = len(set(
-            vehicleDeadEvent.victim.vehicleID for vehicleDeadEvent in self.battleSession.vehicleDeadEvents
+            vehicleDeadEvent.victim.vehicleID for vehicleDeadEvent in self.battleSession.vehicleDeadEventsOfEnemy
             if vehicleDeadEvent.victim.vehicleID in vehicleIdsPiercedAndDamagedOrCritedByPlayer
             and vehicleDeadEvent.attacker.vehicleID != self.player.vehicleID
         ))
