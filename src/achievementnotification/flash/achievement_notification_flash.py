@@ -5,6 +5,8 @@ from gui import DEPTH_OF_Battle, g_guiResetters
 from gui.Scaleform.daapi.view.external_components import ExternalFlashComponent, ExternalFlashSettings
 from gui.Scaleform.flash_wrapper import InputKeyMode
 from gui.Scaleform.framework.entities.BaseDAAPIModule import BaseDAAPIModule
+from helpers import dependency
+from skeletons.account_helpers.settings_core import ISettingsCore
 
 from achievementnotification import createLogger
 from achievementnotification.settings.config import g_config
@@ -24,9 +26,9 @@ class AchievementNotificationFlashMeta(BaseDAAPIModule):
         if self._isDAAPIInited():
             self.flashObject.as_applyConfig(serializedConfig)
 
-    def as_onRecreateDevice(self, screenWidth, screenHeight):
+    def as_onRecreateDevice(self, screenWidth, screenHeight, scale):
         if self._isDAAPIInited():
-            self.flashObject.as_onRecreateDevice(screenWidth, screenHeight)
+            self.flashObject.as_onRecreateDevice(screenWidth, screenHeight, scale)
 
     def as_displayAchievement(self, achievementKey, extended):
         if self._isDAAPIInited():
@@ -34,6 +36,8 @@ class AchievementNotificationFlashMeta(BaseDAAPIModule):
 
 
 class AchievementNotificationFlash(ExternalFlashComponent, AchievementNotificationFlashMeta):
+
+    settingsCore = dependency.descriptor(ISettingsCore)
 
     def __init__(self):
         super(AchievementNotificationFlash, self).__init__(
@@ -46,6 +50,7 @@ class AchievementNotificationFlash(ExternalFlashComponent, AchievementNotificati
 
         self._onRecreateDevice()
         g_guiResetters.add(self._onRecreateDevice)
+        self.settingsCore.interfaceScale.onScaleChanged += self._onScaleFactorChanged
 
         self._initializeAchievementRegistry()
 
@@ -54,6 +59,8 @@ class AchievementNotificationFlash(ExternalFlashComponent, AchievementNotificati
 
     def close(self):
         g_config.onConfigReload -= self._onConfigReload
+
+        self.settingsCore.interfaceScale.onScaleChanged -= self._onScaleFactorChanged
         g_guiResetters.remove(self._onRecreateDevice)
         super(AchievementNotificationFlash, self).close()
 
@@ -65,7 +72,12 @@ class AchievementNotificationFlash(ExternalFlashComponent, AchievementNotificati
 
     def _onRecreateDevice(self):
         screenWidth, screenHeight = GUI.screenResolution()[:2]
-        self.as_onRecreateDevice(screenWidth, screenHeight)
+        scale = round(self.settingsCore.interfaceScale.get(), 1)
+
+        self.as_onRecreateDevice(screenWidth, screenHeight, scale)
+
+    def _onScaleFactorChanged(self, scale):
+        self._onRecreateDevice()
 
     def _configureApp(self):
         # this is needed, otherwise everything will be white

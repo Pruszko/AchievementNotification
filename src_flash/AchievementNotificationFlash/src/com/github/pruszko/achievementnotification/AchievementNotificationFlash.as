@@ -16,6 +16,7 @@ package com.github.pruszko.achievementnotification
 		
 		private var _screenWidth:int = 0;
 		private var _screenHeight:int = 0;
+		private var _scale:Number = 1.0;
 		
 		private var _achievementRegistry:AchievementRegistry = null;
 		private var _notificationBar:NotificationBar;
@@ -50,10 +51,11 @@ package com.github.pruszko.achievementnotification
 			this._config.deserialize(serializedConfig);
 		}
 		
-		public function as_onRecreateDevice(screenWidth:int, screenHeight:int) : void
+		public function as_onRecreateDevice(screenWidth:int, screenHeight:int, scale:Number) : void
 		{
 			this._screenWidth = screenWidth;
 			this._screenHeight = screenHeight;
+			this._scale = scale;
 			
 			// This is based on updatePosition() from battleDamageIndicatorApp.swf
 			// because it is the only source of "something is working" stuff 
@@ -72,8 +74,10 @@ package com.github.pruszko.achievementnotification
 			this.x = SWF_HALF_WIDTH - (screenWidth / 2.0);
 			this.y = SWF_HALF_HEIGHT - (screenHeight / 2.0);
 			
-			this._notificationBar.x = (screenWidth / 2.0) - (AchievementNotification.WIDGET_WIDTH / 2.0);
+			this._notificationBar.x = (screenWidth / 2.0) - (AchievementNotification.WIDGET_WIDTH * this._scale / 2.0);
 			this._notificationBar.y = 0.75 * screenHeight;
+			this._notificationBar.scaleX = this._scale;
+			this._notificationBar.scaleY = this._scale;
 		}
 		
 		public function as_displayAchievement(achievementKey:String, extended:Boolean) : void
@@ -87,6 +91,11 @@ package com.github.pruszko.achievementnotification
 		public function get config() : Config
 		{
 			return this._config;
+		}
+		
+		public function get scale() : Number
+		{
+			return this._scale;
 		}
 		
 	}
