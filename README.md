@@ -1,10 +1,10 @@
 ## Achievement Notification
-A mod displaying achievement notification during battle.
+A mod displaying configurable achievement notification during battle.
 
 Features:
 * displaying most possible achievements to get
 * displaying asterisk (*) on some achievements indicating uncertainty of some survive/win/being top conditions
-* configurable display length
+* configurable display mode (compact, detailed) vertical position and display length
 * ability do enable/disable specific achievements
 
 ![Preview image](images/preview.png)

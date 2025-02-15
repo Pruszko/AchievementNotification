@@ -139,13 +139,25 @@ def _createCommonPart():
         "type": "Label",
         "text": Tr.COMMON_SETTINGS_LABEL
     }] + _emptyLine(2) + [
+        g_configParams.scale.renderParam(
+            header=Tr.SCALE_LABEL,
+            body=Tr.SCALE_BODY
+        ),
+        g_configParams.displayMode.renderParam(
+            header=Tr.DISPLAY_MODE_LABEL,
+            body=Tr.DISPLAY_MODE_BODY
+        ),
+        g_configParams.verticalPosition.renderParam(
+            header=Tr.VERTICAL_POSITION_LABEL,
+            body=Tr.VERTICAL_POSITION_BODY
+        ),
         g_configParams.firstDisplayTime.renderParam(
-            header=Tr.COMMON_SETTINGS_FIRST_DISPLAY_TIME_LABEL,
-            body=Tr.COMMON_SETTINGS_FIRST_DISPLAY_TIME_BODY
+            header=Tr.FIRST_DISPLAY_TIME_LABEL,
+            body=Tr.FIRST_DISPLAY_TIME_BODY
         ),
         g_configParams.consecutiveDisplayTime.renderParam(
-            header=Tr.COMMON_SETTINGS_CONSECUTIVE_DISPLAY_TIME_LABEL,
-            body=Tr.COMMON_SETTINGS_CONSECUTIVE_DISPLAY_TIME_BODY
+            header=Tr.CONSECUTIVE_DISPLAY_TIME_LABEL,
+            body=Tr.CONSECUTIVE_DISPLAY_TIME_BODY
         )
     ]
 

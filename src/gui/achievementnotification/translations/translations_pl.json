@@ -14,6 +14,24 @@
     "Jeżeli chcesz wygenerować domyślny plik konfiguracyjny, usuń go a następnie uruchom grę ponownie"
   ],
   "common-settings.label": "Ustawienia ogólne",
+  "common-settings.scale.label": "Skala",
+  "common-settings.scale.body": [
+    "Kontroluje skalę wielkości całego okienka powiadomienia."
+  ],
+  "common-settings.display-mode.label": "Tryb wyświetlania",
+  "common-settings.display-mode.body": [
+    "Ustawia tryb wyświetlania powiadomienia o osiągnięciach:\n",
+    "- \"Kompaktowy\" - wyświetla małą ikonę, nazwę osiągnięcia i krótki jego opis,\n",
+    "- \"Szczegółowy\" - wyświetla dużą ikonę, nazwę osiągnięcia i szczegółowy opis."
+  ],
+  "common-settings.display-mode.option.compact": "Kompaktowy",
+  "common-settings.display-mode.option.detailed": "Szczegółowy",
+  "common-settings.vertical-position.label": "Przesunięcie w pionie",
+  "common-settings.vertical-position.body": [
+    "Kontroluje przesunięcie w pionie powiadomienia o osiągnięciach, relatywnie do wysokości ekranu:\n",
+    "- 0.0 oznacza górną stronę,\n",
+    "- 1.0 oznacza dolną stronę."
+  ],
   "common-settings.first-display-time.label": "Pierwszy czas wyświetlania",
   "common-settings.first-display-time.body": [
     "Kontroluje, jak długo osiągnięcie jest wyświetlane.\n",

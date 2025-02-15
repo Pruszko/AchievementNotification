@@ -60,7 +60,17 @@ package com.github.pruszko.achievementnotification.queue
 			}
 		}
 		
-		public function onTransitionFinish() : void
+		public function get estimatedWidgetWidth() : Number
+		{
+			if (this.config.displayMode == Config.DISPLAY_MODE_DETAILED)
+			{
+				return AchievementNotification.WIDGET_WIDTH_DETAILED;
+			}
+			
+			return AchievementNotification.WIDGET_WIDTH_COMPACT;
+		}
+		
+		private function onTransitionFinish() : void
 		{
 			if (this._currentState == STATE_FADING_IN)
 			{

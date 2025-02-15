@@ -10,9 +10,10 @@ logger = createLogger(__name__)
 
 class ConfigVersion(object):
 
-    V1_0_0 = 1
+    V1_0_X = 1
+    V1_1_X = 2
 
-    CURRENT = V1_0_0
+    CURRENT = V1_1_X
 
 
 def performConfigMigrations():
@@ -25,7 +26,7 @@ def performConfigMigrations():
         if isVersion(configDict, ConfigVersion.CURRENT):
             return
 
-        # nothing to migrate yet
+        v1_1_0_addScalePositionAndCompactMode(configDict)
 
         g_configFiles.config.writeConfigDict(configDict)
     except ConfigException:
@@ -37,9 +38,24 @@ def performConfigMigrations():
                               "Contact mod developer for further support with provided logs.")
 
 
+def v1_1_0_addScalePositionAndCompactMode(configDict):
+    if not isVersion(configDict, ConfigVersion.V1_0_X):
+        return
+
+    logger.info("Migrating config file from version 1.0.x to 1.1.x ...")
+
+    configDict["scale"] = 1.0
+    configDict["display-mode"] = "detailed"
+    configDict["vertical-position"] = 0.8
+
+    progressVersion(configDict)
+
+    logger.info("Migration finished.")
+
+
 def progressVersion(configDict):
     if "__version__" not in configDict:
-        configDict["__version__"] = ConfigVersion.V1_0_0
+        configDict["__version__"] = ConfigVersion.V1_0_X
         return
 
     configDict["__version__"] = int(configDict["__version__"]) + 1
@@ -47,6 +63,6 @@ def progressVersion(configDict):
 
 def isVersion(configDict, version):
     if "__version__" not in configDict:
-        return ConfigVersion.V1_0_0 == version
+        return ConfigVersion.V1_0_X == version
 
     return int(configDict["__version__"]) == version

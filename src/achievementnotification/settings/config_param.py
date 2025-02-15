@@ -10,6 +10,26 @@ class ConfigParams(object):
         )
 
         # common settings
+        self.scale = SliderParam(
+            path=["scale"],
+            castFunction=float,
+            minValue=0.2, step=0.05, maxValue=4.0,
+            defaultValue=1.0
+        )
+        self.displayMode = OptionsParam(
+            path=["display-mode"],
+            options=[
+                Option(DisplayMode.COMPACT, msaValue=0, displayName=Tr.DISPLAY_MODE_OPTION_COMPACT),
+                Option(DisplayMode.DETAILED, msaValue=1, displayName=Tr.DISPLAY_MODE_OPTION_DETAILED),
+            ],
+            defaultValue=DisplayMode.DETAILED
+        )
+        self.verticalPosition = SliderParam(
+            path=["vertical-position"],
+            castFunction=float,
+            minValue=0.0, step=0.01, maxValue=1.0,
+            defaultValue=0.8
+        )
         self.firstDisplayTime = SliderParam(
             path=["first-display-time"],
             castFunction=float,
@@ -26,177 +46,177 @@ class ConfigParams(object):
         # achievement settings
         self.achievements_arsonist = BooleanParam(
             path=["achievements", "arsonist"],
-            defaultValue=True,
+            defaultValue=True, disabledValue=False,
             playable=True
         )
         self.achievements_bonecrusher = BooleanParam(
             path=["achievements", "bonecrusher"],
-            defaultValue=True,
+            defaultValue=True, disabledValue=False,
             playable=True
         )
         self.achievements_charmed = BooleanParam(
             path=["achievements", "charmed"],
-            defaultValue=True,
+            defaultValue=True, disabledValue=False,
             playable=True
         )
         self.achievements_defender = BooleanParam(
             path=["achievements", "defender"],
-            defaultValue=True,
+            defaultValue=True, disabledValue=False,
             playable=True
         )
         self.achievements_demolition = BooleanParam(
             path=["achievements", "demolition"],
-            defaultValue=True,
+            defaultValue=True, disabledValue=False,
             playable=True
         )
         self.achievements_duelist = BooleanParam(
             path=["achievements", "duelist"],
-            defaultValue=True,
+            defaultValue=True, disabledValue=False,
             playable=True
         )
         self.achievements_even = BooleanParam(
             path=["achievements", "even"],
-            defaultValue=True,
+            defaultValue=True, disabledValue=False,
             playable=True
         )
         self.achievements_fighter = BooleanParam(
             path=["achievements", "fighter"],
-            defaultValue=True,
+            defaultValue=True, disabledValue=False,
             playable=True
         )
         self.achievements_heroesOfRassenay = BooleanParam(
             path=["achievements", "heroesOfRassenay"],
-            defaultValue=True,
+            defaultValue=True, disabledValue=False,
             playable=True
         )
         self.achievements_huntsman = BooleanParam(
             path=["achievements", "huntsman"],
-            defaultValue=True,
+            defaultValue=True, disabledValue=False,
             playable=True
         )
         self.achievements_impenetrable = BooleanParam(
             path=["achievements", "impenetrable"],
-            defaultValue=True,
+            defaultValue=True, disabledValue=False,
             playable=True
         )
         self.achievements_ironMan = BooleanParam(
             path=["achievements", "ironMan"],
-            defaultValue=True,
+            defaultValue=True, disabledValue=False,
             playable=True
         )
         self.achievements_kamikaze = BooleanParam(
             path=["achievements", "kamikaze"],
-            defaultValue=True,
+            defaultValue=True, disabledValue=False,
             playable=True
         )
         self.achievements_mainGun = BooleanParam(
             path=["achievements", "mainGun"],
-            defaultValue=True,
+            defaultValue=True, disabledValue=False,
             playable=True
         )
         self.achievements_medalAntiSpgFire = BooleanParam(
             path=["achievements", "medalAntiSpgFire"],
-            defaultValue=True,
+            defaultValue=True, disabledValue=False,
             playable=True
         )
         self.achievements_medalBurda = BooleanParam(
             path=["achievements", "medalBurda"],
-            defaultValue=True,
+            defaultValue=True, disabledValue=False,
             playable=True
         )
         self.achievements_medalCoolBlood = BooleanParam(
             path=["achievements", "medalCoolBlood"],
-            defaultValue=True,
+            defaultValue=True, disabledValue=False,
             playable=True
         )
         self.achievements_medalDumitru = BooleanParam(
             path=["achievements", "medalDumitru"],
-            defaultValue=True,
+            defaultValue=True, disabledValue=False,
             playable=True
         )
         self.achievements_medalGore = BooleanParam(
             path=["achievements", "medalGore"],
-            defaultValue=True,
+            defaultValue=True, disabledValue=False,
             playable=True
         )
         self.achievements_medalHalonen = BooleanParam(
             path=["achievements", "medalHalonen"],
-            defaultValue=True,
+            defaultValue=True, disabledValue=False,
             playable=True
         )
         self.achievements_medalLafayettePool = BooleanParam(
             path=["achievements", "medalLafayettePool"],
-            defaultValue=True,
+            defaultValue=True, disabledValue=False,
             playable=True
         )
         self.achievements_medalLehvaslaiho = BooleanParam(
             path=["achievements", "medalLehvaslaiho"],
-            defaultValue=True,
+            defaultValue=True, disabledValue=False,
             playable=True
         )
         self.achievements_medalNikolas = BooleanParam(
             path=["achievements", "medalNikolas"],
-            defaultValue=True,
+            defaultValue=True, disabledValue=False,
             playable=True
         )
         self.achievements_medalOrlik = BooleanParam(
             path=["achievements", "medalOrlik"],
-            defaultValue=True,
+            defaultValue=True, disabledValue=False,
             playable=True
         )
         self.achievements_medalOskin = BooleanParam(
             path=["achievements", "medalOskin"],
-            defaultValue=True,
+            defaultValue=True, disabledValue=False,
             playable=True
         )
         self.achievements_medalStark = BooleanParam(
             path=["achievements", "medalStark"],
-            defaultValue=True,
+            defaultValue=True, disabledValue=False,
             playable=True
         )
         self.achievements_medalPascucci = BooleanParam(
             path=["achievements", "medalPascucci"],
-            defaultValue=True,
+            defaultValue=True, disabledValue=False,
             playable=True
         )
         self.achievements_medalRadleyWalters = BooleanParam(
             path=["achievements", "medalRadleyWalters"],
-            defaultValue=True,
+            defaultValue=True, disabledValue=False,
             playable=True
         )
         self.achievements_medalTamadaYoshio = BooleanParam(
             path=["achievements", "medalTamadaYoshio"],
-            defaultValue=True,
+            defaultValue=True, disabledValue=False,
             playable=True
         )
         self.achievements_scout = BooleanParam(
             path=["achievements", "scout"],
-            defaultValue=True,
+            defaultValue=True, disabledValue=False,
             playable=True
         )
         self.achievements_shootToKill = BooleanParam(
             path=["achievements", "shootToKill"],
-            defaultValue=True,
+            defaultValue=True, disabledValue=False,
             playable=True
         )
         self.achievements_steelwall = BooleanParam(
             path=["achievements", "steelwall"],
-            defaultValue=True,
+            defaultValue=True, disabledValue=False,
             playable=True
         )
         self.achievements_sturdy = BooleanParam(
             path=["achievements", "sturdy"],
-            defaultValue=True,
+            defaultValue=True, disabledValue=False,
             playable=True
         )
         self.achievements_supporter = BooleanParam(
             path=["achievements", "supporter"],
-            defaultValue=True,
+            defaultValue=True, disabledValue=False,
             playable=True
         )
         self.achievements_warrior = BooleanParam(
             path=["achievements", "warrior"],
-            defaultValue=True,
+            defaultValue=True, disabledValue=False,
             playable=True
         )
 

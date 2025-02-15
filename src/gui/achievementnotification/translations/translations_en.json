@@ -14,6 +14,24 @@
     "If you want to generate default config file, delete it and launch a game again"
   ],
   "common-settings.label": "Common settings",
+  "common-settings.scale.label": "Scale",
+  "common-settings.scale.body": [
+    "Controls scale of the entire notification widget."
+  ],
+  "common-settings.display-mode.label": "Display mode",
+  "common-settings.display-mode.body": [
+    "Configures display mode of achievement mod:\n",
+    "- \"Compact\" - displays small icon, name of achievement and short description,\n",
+    "- \"Detailed\" - displays big icon, name of achievement and detailed description."
+  ],
+  "common-settings.display-mode.option.compact": "Compact",
+  "common-settings.display-mode.option.detailed": "Detailed",
+  "common-settings.vertical-position.label": "Vertical position",
+  "common-settings.vertical-position.body": [
+    "Controls vertical position of achievement mod, relative to screen height:\n",
+    "- 0.0 means top side,\n",
+    "- 1.0 means bottom side."
+  ],
   "common-settings.first-display-time.label": "First display time",
   "common-settings.first-display-time.body": [
     "Controls how long should achievement be displayed.\n",

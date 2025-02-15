@@ -7,6 +7,12 @@ PARAM_REGISTRY = {}
 logger = createLogger(__name__)
 
 
+class DisplayMode(object):
+
+    COMPACT = "compact"
+    DETAILED = "detailed"
+
+
 class Param(object):
 
     def __init__(self, path, defaultValue, disabledValue=None):

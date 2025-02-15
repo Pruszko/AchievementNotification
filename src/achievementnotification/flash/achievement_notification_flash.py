@@ -66,13 +66,16 @@ class AchievementNotificationFlash(ExternalFlashComponent, AchievementNotificati
 
     def _onConfigReload(self):
         self.as_applyConfig({
+            "display-mode": g_configParams.displayMode(),
+            "vertical-position": g_configParams.verticalPosition(),
             "first-display-time": g_configParams.firstDisplayTime(),
             "consecutive-display-time": g_configParams.consecutiveDisplayTime(),
         })
+        self._onRecreateDevice()
 
     def _onRecreateDevice(self):
         screenWidth, screenHeight = GUI.screenResolution()[:2]
-        scale = round(self.settingsCore.interfaceScale.get(), 1)
+        scale = round(g_configParams.scale() * self.settingsCore.interfaceScale.get(), 2)
 
         self.as_onRecreateDevice(screenWidth, screenHeight, scale)
 

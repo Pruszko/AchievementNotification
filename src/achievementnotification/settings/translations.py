@@ -104,11 +104,22 @@ class Tr(object):
     # common settings
     COMMON_SETTINGS_LABEL = TranslationElement("common-settings.label")
 
-    COMMON_SETTINGS_FIRST_DISPLAY_TIME_LABEL = TranslationElement("common-settings.first-display-time.label")
-    COMMON_SETTINGS_FIRST_DISPLAY_TIME_BODY = TranslationList("common-settings.first-display-time.body")
+    SCALE_LABEL = TranslationElement("common-settings.scale.label")
+    SCALE_BODY = TranslationList("common-settings.scale.body")
 
-    COMMON_SETTINGS_CONSECUTIVE_DISPLAY_TIME_LABEL = TranslationElement("common-settings.consecutive-display-time.label")
-    COMMON_SETTINGS_CONSECUTIVE_DISPLAY_TIME_BODY = TranslationList("common-settings.consecutive-display-time.body")
+    DISPLAY_MODE_LABEL = TranslationElement("common-settings.display-mode.label")
+    DISPLAY_MODE_BODY = TranslationList("common-settings.display-mode.body")
+    DISPLAY_MODE_OPTION_COMPACT = TranslationElement("common-settings.display-mode.option.compact")
+    DISPLAY_MODE_OPTION_DETAILED = TranslationElement("common-settings.display-mode.option.detailed")
+
+    VERTICAL_POSITION_LABEL = TranslationElement("common-settings.vertical-position.label")
+    VERTICAL_POSITION_BODY = TranslationList("common-settings.vertical-position.body")
+
+    FIRST_DISPLAY_TIME_LABEL = TranslationElement("common-settings.first-display-time.label")
+    FIRST_DISPLAY_TIME_BODY = TranslationList("common-settings.first-display-time.body")
+
+    CONSECUTIVE_DISPLAY_TIME_LABEL = TranslationElement("common-settings.consecutive-display-time.label")
+    CONSECUTIVE_DISPLAY_TIME_BODY = TranslationList("common-settings.consecutive-display-time.body")
 
     # achievements settings
     ACHIEVEMENTS_SETTINGS_LABEL = TranslationElement("achievements-settings.label")

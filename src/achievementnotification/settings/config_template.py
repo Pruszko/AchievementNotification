@@ -8,6 +8,26 @@ CONFIG_TEMPLATE = """{
     // however it does not remove mod presence itself. 
     "enabled": %(enabled)s,
 
+    // Valid values: number between 0.2 and 4.0 (default 1.0)
+    // 
+    // Controls scale of the entire notification widget.
+    "scale": %(scale)s,
+
+    // Valid values: ["compact", "detailed"]
+    // Default value: "detailed"
+    //
+    // Configures display mode of achievement mod:
+    // - "compact"  - displays small icon, name of achievement and short description,
+    // - "detailed" - displays big icon, name of achievement and detailed description.
+    "display-mode": %(display-mode)s,
+
+    // Valid values: number between 0.0 and 1.0 (default 0.8)
+    // 
+    // Controls vertical position of achievement mod, relative to screen height:
+    // - 0.0 means top side,
+    // - 1.0 means bottom side.
+    "vertical-position": %(vertical-position)s,
+
     // Valid values: number between 0.5 and 10.0 (default 5.0)
     //
     // Controls how long should achievement be displayed.
@@ -65,5 +85,5 @@ CONFIG_TEMPLATE = """{
 
     // DO NOT touch "__version__" field
     // It is used by me to seamlessly update config file :)
-    "__version__": 1
+    "__version__": 2
 }"""

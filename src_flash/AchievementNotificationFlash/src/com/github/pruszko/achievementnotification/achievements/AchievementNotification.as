@@ -1,6 +1,7 @@
 package com.github.pruszko.achievementnotification.achievements
 {
 	import com.github.pruszko.achievementnotification.AchievementNotificationFlash;
+	import com.github.pruszko.achievementnotification.config.Config;
 	import com.github.pruszko.achievementnotification.utils.Disposable;
 	import flash.display.Loader;
 	import flash.display.Shape;
@@ -16,12 +17,18 @@ package com.github.pruszko.achievementnotification.achievements
 	public class AchievementNotification extends Sprite implements Disposable
 	{
 		
-		private static const ICON_SIZE:int = 100;
-		private static const TEXT_WIDTH:int = 600;
+		public static const ICON_SIZE_COMPACT:int = 70;
+		public static const TEXT_WIDTH_COMPACT:int = 400;
+		private static const ASTERISK_FONT_SIZE_COMPACT:int = 36;
+		public static const WIDGET_WIDTH_COMPACT:int = ICON_SIZE_COMPACT + TEXT_WIDTH_COMPACT;
 		
-		public static const WIDGET_WIDTH:int = ICON_SIZE + TEXT_WIDTH;
+		public static const ICON_SIZE_DETAILED:int = 100;
+		public static const TEXT_WIDTH_DETAILED:int = 600;
+		private static const ASTERISK_FONT_SIZE_DETAILED:int = 54;
+		public static const WIDGET_WIDTH_DETAILED:int = ICON_SIZE_DETAILED + TEXT_WIDTH_DETAILED;
 		
 		private var _app:AchievementNotificationFlash;
+		private var _achievement:Achievement;
 		
 		public var displayTime:Number;
 		
@@ -35,6 +42,7 @@ package com.github.pruszko.achievementnotification.achievements
 		{
 			super();
 			this._app = app;
+			this._achievement = achievement;
 			
 			// loading an icon takes time - it's fast, but after calling load(...) we don't have fully proper dimensions yet
 			// wait for loading and call this.onIconLoadingComplete(...) to finish positioning
@@ -57,10 +65,11 @@ package com.github.pruszko.achievementnotification.achievements
 				this._conditionalStarTextField.selectable = false;
 				this._conditionalStarTextField.type = TextFieldType.DYNAMIC;
 				this._conditionalStarTextField.wordWrap = true;
-				this._conditionalStarTextField.defaultTextFormat = new TextFormat("$FieldFont", 54, 0xFFFF00);
+				this._conditionalStarTextField.defaultTextFormat = new TextFormat("$FieldFont", this.asteriskFontSize, 0xFFFF00);
 				this._conditionalStarTextField.text = "*";
 				this._conditionalStarTextField.x = 0;
 				this._conditionalStarTextField.y = -10;
+				
 				this.addChild(this._conditionalStarTextField);
 			}
 			
@@ -77,8 +86,8 @@ package com.github.pruszko.achievementnotification.achievements
 			this._achievementNameTextField.wordWrap = true;
 			this._achievementNameTextField.defaultTextFormat = new TextFormat("$FieldFont", 20, 0xFFFFFF);
 			this._achievementNameTextField.text = achievement.text;
-			this._achievementNameTextField.width = TEXT_WIDTH;
-			this._achievementNameTextField.x = ICON_SIZE;
+			this._achievementNameTextField.width = this.textWidth;
+			this._achievementNameTextField.x = this.iconSize;
 			
 			this.addChild(this._achievementNameTextField);
 			
@@ -109,43 +118,49 @@ package com.github.pruszko.achievementnotification.achievements
 			}
 			
 			this._achievementDescriptionTextField.text = achievement.descriptionText + descriptionExtension;
-			this._achievementDescriptionTextField.width = TEXT_WIDTH;
-			this._achievementDescriptionTextField.x = ICON_SIZE;
+			this._achievementDescriptionTextField.width = this.textWidth;
+			this._achievementDescriptionTextField.x = this.iconSize;
 			this._achievementDescriptionTextField.y = this._achievementNameTextField.y + this._achievementNameTextField.height;
 			
 			this.addChild(this._achievementDescriptionTextField);
 			
-			// achievement condition
-			this._achievementConditionTextField = new TextField();
-			this._achievementConditionTextField.mouseEnabled = false;
-			this._achievementConditionTextField.antiAliasType = AntiAliasType.NORMAL;
-			this._achievementConditionTextField.autoSize = TextFieldAutoSize.LEFT;
-			this._achievementConditionTextField.background = false;
-			this._achievementConditionTextField.border = false;
-			this._achievementConditionTextField.multiline = true;
-			this._achievementConditionTextField.selectable = false;
-			this._achievementConditionTextField.type = TextFieldType.DYNAMIC;
-			this._achievementConditionTextField.wordWrap = true;
-			this._achievementConditionTextField.defaultTextFormat = new TextFormat("$FieldFont", 12, 0x6e6862);
-			this._achievementConditionTextField.text = achievement.conditionText;
-			this._achievementConditionTextField.width = TEXT_WIDTH;
-			this._achievementConditionTextField.x = ICON_SIZE;
-			this._achievementConditionTextField.y = this._achievementDescriptionTextField.y + this._achievementDescriptionTextField.height + 5;
-			
-			this.addChild(this._achievementConditionTextField);
+			if (this.config.displayMode == Config.DISPLAY_MODE_DETAILED)
+			{
+				// achievement condition
+				this._achievementConditionTextField = new TextField();
+				this._achievementConditionTextField.mouseEnabled = false;
+				this._achievementConditionTextField.antiAliasType = AntiAliasType.NORMAL;
+				this._achievementConditionTextField.autoSize = TextFieldAutoSize.LEFT;
+				this._achievementConditionTextField.background = false;
+				this._achievementConditionTextField.border = false;
+				this._achievementConditionTextField.multiline = true;
+				this._achievementConditionTextField.selectable = false;
+				this._achievementConditionTextField.type = TextFieldType.DYNAMIC;
+				this._achievementConditionTextField.wordWrap = true;
+				this._achievementConditionTextField.defaultTextFormat = new TextFormat("$FieldFont", 12, 0x6e6862);
+				this._achievementConditionTextField.text = achievement.conditionText;
+				this._achievementConditionTextField.width = this.textWidth;
+				this._achievementConditionTextField.x = this.iconSize;
+				this._achievementConditionTextField.y = this._achievementDescriptionTextField.y + this._achievementDescriptionTextField.height + 5;
+				
+				this.addChild(this._achievementConditionTextField);
+			}
 			
 			this.recalculateBackground();
 		}
 		
 		private function onIconLoadingComplete(event:Event) : void
 		{
-			this._largeIcon.width = ICON_SIZE;
-			this._largeIcon.height = ICON_SIZE;
-			this._largeIcon.y = (this.height - this._largeIcon.height) / 2.0;
-			
-			this._largeIcon.contentLoaderInfo.removeEventListener(Event.COMPLETE, this.onIconLoadingComplete);
-			
-			this.recalculateBackground();
+			if (this._largeIcon != null)
+			{
+				this._largeIcon.width = this.iconSize;
+				this._largeIcon.height = this.iconSize;
+				this._largeIcon.y = (this.height - this._largeIcon.height) / 2.0;
+				
+				this._largeIcon.contentLoaderInfo.removeEventListener(Event.COMPLETE, this.onIconLoadingComplete);
+				
+				this.recalculateBackground();
+			}
 		}
 		
 		private function recalculateBackground() : void
@@ -153,8 +168,41 @@ package com.github.pruszko.achievementnotification.achievements
 			this.graphics.clear();
 			this.graphics.lineStyle(1, 0xa19c95)
 			this.graphics.beginFill(0x000000, 0.9);
-			this.graphics.drawRoundRect(-5, -5, this.width + 10, this.height + 10, 20, 20);
+			
+			// if asterisk text field is displayed, then actual target height is 10 pixels less
+			// because moving asterisk text field to y = -10 enlarges widget height by 10
+			// because ... technically widget will be 10 pixels larger
+			// despite having "above zero" same height (10 from y = -10 and other component height)
+			var actualHeight:Number = this.height + (this._achievement.conditional ? -10 : 0);
+			this.graphics.drawRoundRect( -5, -5, this.width + 10, actualHeight + 10, 20, 20);
+			
 			this.graphics.endFill();
+		}
+		
+		private function get iconSize() : Number
+		{
+			return this.config.displayMode == Config.DISPLAY_MODE_DETAILED
+				? ICON_SIZE_DETAILED
+				: ICON_SIZE_COMPACT;
+		}
+		
+		private function get textWidth() : Number
+		{
+			return this.config.displayMode == Config.DISPLAY_MODE_DETAILED
+				? TEXT_WIDTH_DETAILED
+				: TEXT_WIDTH_COMPACT;
+		}
+		
+		private function get asteriskFontSize() : Number
+		{
+			return this.config.displayMode == Config.DISPLAY_MODE_DETAILED
+				? ASTERISK_FONT_SIZE_DETAILED
+				: ASTERISK_FONT_SIZE_COMPACT;
+		}
+		
+		private function get config() : Config
+		{
+			return this._app.config;
 		}
 		
 		public function disposeState() : void
@@ -162,6 +210,7 @@ package com.github.pruszko.achievementnotification.achievements
 			this.removeChildren();
 			
 			this._app = null;
+			this._achievement = null;
 			
 			this._largeIcon = null;
 			this._conditionalStarTextField = null;

@@ -74,8 +74,8 @@ package com.github.pruszko.achievementnotification
 			this.x = SWF_HALF_WIDTH - (screenWidth / 2.0);
 			this.y = SWF_HALF_HEIGHT - (screenHeight / 2.0);
 			
-			this._notificationBar.x = (screenWidth / 2.0) - (AchievementNotification.WIDGET_WIDTH * this._scale / 2.0);
-			this._notificationBar.y = 0.75 * screenHeight;
+			this._notificationBar.x = (screenWidth / 2.0) - (this._notificationBar.estimatedWidgetWidth * this._scale / 2.0);
+			this._notificationBar.y = this.config.verticalPosition * screenHeight;
 			this._notificationBar.scaleX = this._scale;
 			this._notificationBar.scaleY = this._scale;
 		}
