@@ -1,0 +1,51 @@
+{
+  "modname": "Уведомления о достижениях",
+  "checked": "включено",
+  "unchecked": "выключено",
+  "defaultValue": "по умолчанию",
+  "intro.label": "Информация о файле конфигурации",
+  "intro.header": "Файл конфигурации",
+  "intro.body": [
+    "Настройки можно изменить вручную, отредактировав файл конфигурации.\n",
+    "Расположение файла:\n",
+    "- [Папка с игрой WoT]/mods/configs/AchievementNotification/config.json"
+  ],
+  "intro.note": [
+    "Чтобы сгенерировать файл конфигурации по умолчанию, удалите его и запустите игру снова."
+  ],
+  "common-settings.label": "Основные настройки",
+  "common-settings.scale.label": "Масштаб",
+  "common-settings.scale.body": [
+    "Определяет масштаб всего виджета уведомлений."
+  ],
+  "common-settings.display-mode.label": "Режим отображения",
+  "common-settings.display-mode.body": [
+    "Настройка вида уведомлений:\n",
+    "- «Компактный» — показывает маленькую иконку, название достижения и краткое описание,\n",
+    "- «Подробный» — показывает большую иконку, название и полное описание достижения."
+  ],
+  "common-settings.display-mode.option.compact": "Компактный",
+  "common-settings.display-mode.option.detailed": "Подробный",
+  "common-settings.vertical-position.label": "Вертикальное положение",
+  "common-settings.vertical-position.body": [
+    "Определяет положение уведомлений по вертикали (относительно высоты экрана):\n",
+    "- 0.0 — верх экрана,\n",
+    "- 1.0 — низ экрана."
+  ],
+  "common-settings.first-display-time.label": "Время показа (первое уведомление)",
+  "common-settings.first-display-time.body": [
+    "Определяет, как долго показывать первое уведомление.\n",
+    "Если достижений несколько, это время применяется только к первому.\n",
+    "Для остальных используется параметр «Время показа последующих уведомлений»."
+  ],
+  "common-settings.consecutive-display-time.label": "Время показа (последующие уведомления)",
+  "common-settings.consecutive-display-time.body": [
+    "Если достижений несколько, этот параметр определяет,\n",
+    "как долго показывать каждое следующее уведомление в группе (после первого)."
+  ],
+  "achievements-settings.label": "Настройки достижений",
+  "display-achievement.header": "Показывать достижение",
+  "display-achievement.body": [
+    "Если включено, уведомление будет появляться во время боя."
+  ]
+}
