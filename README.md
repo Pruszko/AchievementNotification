@@ -30,3 +30,4 @@ Config file location:
 Thanks to:
 * IzeBerg - for cool GUI configuration API
 * POLIROID - for ModsListAPI
+* AVPromo & AssTrahanec - for Russian translations & pull request
