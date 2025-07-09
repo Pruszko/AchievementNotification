@@ -28,8 +28,10 @@ onPlayerReceivedHit = Event.Event()
 # is there anything more precise?
 # tested hooks around damage indicator, but it was even worse and had even less info
 @overrideIn(Vehicle)
-def showDamageFromShot(func, self, attackerID, points, effectsIndex, damage, damageFactor, lastMaterialIsShield):
-    func(self, attackerID, points, effectsIndex, damage, damageFactor, lastMaterialIsShield)
+def showDamageFromShot(func, self, attackerID, hitPoints, effectsIndex, prefabEffIndex, damage, damageFactor,
+                       lastMaterialIsShield, shellTypeIdx, shellCaliber, shellVelocity):
+    func(self, attackerID, hitPoints, effectsIndex, prefabEffIndex, damage, damageFactor,
+         lastMaterialIsShield, shellTypeIdx, shellCaliber, shellVelocity)
 
     try:
         if not self.isStarted:
@@ -41,7 +43,7 @@ def showDamageFromShot(func, self, attackerID, points, effectsIndex, damage, dam
         if not self.isAlive():
             return
 
-        decodedEffectCodes = decodeEffectCodes(points)
+        decodedEffectCodes = decodeEffectCodes(hitPoints)
 
         if not decodedEffectCodes:
             return
@@ -54,7 +56,7 @@ def showDamageFromShot(func, self, attackerID, points, effectsIndex, damage, dam
 
 
 # based on VehicleEffects.DamageFromShotDecoder
-def decodeEffectCodes(points):
+def decodeEffectCodes(hitPoints):
     return [
-        int(segment & 255) for segment in points
+        int(hitPoint["segment"] & 255) for hitPoint in hitPoints
     ]
