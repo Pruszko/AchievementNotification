@@ -29,9 +29,9 @@ onPlayerReceivedHit = Event.Event()
 # tested hooks around damage indicator, but it was even worse and had even less info
 @overrideIn(Vehicle)
 def showDamageFromShot(func, self, attackerID, hitPoints, effectsIndex, prefabEffIndex, damage, damageFactor,
-                       lastMaterialIsShield, shellTypeIdx, shellCaliber, shellVelocity, gunInstallationIndex):
+                       lastMaterialIsShield, shellVelocity, gunInstallationIndex):
     func(self, attackerID, hitPoints, effectsIndex, prefabEffIndex, damage, damageFactor,
-         lastMaterialIsShield, shellTypeIdx, shellCaliber, shellVelocity, gunInstallationIndex)
+         lastMaterialIsShield, shellVelocity, gunInstallationIndex)
 
     try:
         if not self.isStarted:

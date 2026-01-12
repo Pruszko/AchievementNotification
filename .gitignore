@@ -9,5 +9,4 @@
 /versions/*
 /**/*.swf
 src_flash/*/obj/*
-AchievementNotification/**
-other/**
+target/**
