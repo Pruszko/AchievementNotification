@@ -47,6 +47,16 @@ if IS_DEBUG:
     }
 
 
+def withNoException(func):
+    def wrapper(*args, **kwargs):
+        try:
+            return func(*args, **kwargs)
+        except:
+            logger.error("Error occurred while invoking function %s", func.__name__, exc_info=1)
+
+    return wrapper
+
+
 class BattleStateCollector(object):
     _battleSessionProvider = dependency.descriptor(IBattleSessionProvider)  # type: BattleSessionProvider
 
@@ -55,15 +65,13 @@ class BattleStateCollector(object):
     def __init__(self):
         self.battleSession = None
 
-        self._prevArenaPeriod = constants.ARENA_PERIOD.IDLE
-        self._arenaPeriod = constants.ARENA_PERIOD.IDLE
-
         g_playerEvents.onAvatarBecomePlayer += self._onAvatarBecomePlayer
         g_playerEvents.onAvatarBecomeNonPlayer += self._onAvatarBecomeNonPlayer
 
         self._battleSessionProvider.onBattleSessionStart += self._onBattleSessionStart
         self._battleSessionProvider.onBattleSessionStop += self._onBattleSessionStop
 
+    @withNoException
     def _onAvatarBecomePlayer(self):
         # we don't need to unregister events, because arena unregisters it itself
         # also, it's even hard to unregister them,
@@ -72,31 +80,35 @@ class BattleStateCollector(object):
         arena = BigWorld.player().arena  # type: ClientArena
         if arena.guiType in constants.ARENA_GUI_TYPE.RANDOM_RANGE:
             arena.onVehicleKilled += self._onVehicleKilled
-            arena.onPeriodChange += self._onPeriodChange
 
+            logger.debug("Starting state")
+
+            self.battleSession = BattleSession()
+            self.battleSession.startListeners()
+
+    @withNoException
     def _onAvatarBecomeNonPlayer(self):
-        try:
-            if self.battleSession is not None:
-                self._endBattleStats()
-        except:
-            logger.error("Error occurred while finishing collecting battle statistics", exc_info=1)
+        logger.debug("Ending state")
 
+        if self.battleSession is not None:
+            self.battleSession.stopListeners()
+            self.battleSession = None
+
+    @withNoException
     def _onBattleSessionStart(self):
-        try:
-            feedback = self._battleSessionProvider.shared.feedback  # type: BattleFeedbackAdaptor
-            if feedback is None:
-                return
+        feedback = self._battleSessionProvider.shared.feedback  # type: BattleFeedbackAdaptor
+        if feedback is None:
+            return
 
-            arena = BigWorld.player().arena  # type: ClientArena
+        arena = BigWorld.player().arena  # type: ClientArena
 
-            if arena.guiType in constants.ARENA_GUI_TYPE.RANDOM_RANGE:
-                feedback.onPlayerFeedbackReceived += self._onPlayerFeedbackReceived
+        if arena.guiType in constants.ARENA_GUI_TYPE.RANDOM_RANGE:
+            feedback.onPlayerFeedbackReceived += self._onPlayerFeedbackReceived
 
-                avatar_hooks.onPlayerHit += self._onPlayerHit
-                vehicle_hooks.onPlayerReceivedHit += self._onPlayerReceivedHit
-        except:
-            logger.error("Error occurred on starting battle session", exc_info=1)
+            avatar_hooks.onPlayerHit += self._onPlayerHit
+            vehicle_hooks.onPlayerReceivedHit += self._onPlayerReceivedHit
 
+    @withNoException
     def _onBattleSessionStop(self):
         # (me few hours ago)
         # WG code for some reason always checks if feedback is not None in battle session start/stop
@@ -114,52 +126,17 @@ class BattleStateCollector(object):
         # collapsing of entire battle code (or at least my code)
         # because "shared" repository is empty when battle session is finalized,
         # so it won't trigger actual listener code twice
-        try:
-            feedback = self._battleSessionProvider.shared.feedback  # type: BattleFeedbackAdaptor
-            if feedback is None:
-                return
+        feedback = self._battleSessionProvider.shared.feedback  # type: BattleFeedbackAdaptor
+        if feedback is None:
+            return
 
-            arena = BigWorld.player().arena  # type: ClientArena
+        arena = BigWorld.player().arena  # type: ClientArena
 
-            if arena.guiType in constants.ARENA_GUI_TYPE.RANDOM_RANGE:
-                feedback.onPlayerFeedbackReceived -= self._onPlayerFeedbackReceived
+        if arena.guiType in constants.ARENA_GUI_TYPE.RANDOM_RANGE:
+            feedback.onPlayerFeedbackReceived -= self._onPlayerFeedbackReceived
 
-                avatar_hooks.onPlayerHit -= self._onPlayerHit
-                vehicle_hooks.onPlayerReceivedHit -= self._onPlayerReceivedHit
-        except:
-            logger.error("Error occurred on stopping battle session", exc_info=1)
-
-    # player arena vehicles are not immediately ready,
-    # and I'm too lazy to hook into waiting to load all of them,
-    # because I don't really know how many players will be in a battle
-    # so ... wait for battle start, they will be all present for sure
-    def _onPeriodChange(self, period, *args, **kwargs):
-        try:
-            self._prevArenaPeriod = self._arenaPeriod
-            self._arenaPeriod = period
-
-            if self._prevArenaPeriod < self._arenaPeriod == constants.ARENA_PERIOD.BATTLE:
-                self._startBattleStats()
-        except:
-            logger.error("Error occurred on period change", exc_info=1)
-
-    def _startBattleStats(self):
-        logger.debug("Starting state")
-
-        self._prevArenaPeriod = constants.ARENA_PERIOD.IDLE
-        self._arenaPeriod = constants.ARENA_PERIOD.IDLE
-
-        self.battleSession = BattleSession()
-        self.battleSession.startListeners()
-
-    def _endBattleStats(self):
-        logger.debug("Ending state")
-
-        self._prevArenaPeriod = constants.ARENA_PERIOD.IDLE
-        self._arenaPeriod = constants.ARENA_PERIOD.IDLE
-
-        self.battleSession.stopListeners()
-        self.battleSession = None
+            avatar_hooks.onPlayerHit -= self._onPlayerHit
+            vehicle_hooks.onPlayerReceivedHit -= self._onPlayerReceivedHit
 
     # note to myself
     #
@@ -171,49 +148,48 @@ class BattleStateCollector(object):
     #
     # extra data can be deducted by
     # feedback_events._PLAYER_FEEDBACK_EXTRA_DATA_CONVERTERS
+    @withNoException
     def _onPlayerFeedbackReceived(self, playerFeedbackEvents):
         playerFeedbackEvents = playerFeedbackEvents  # type: List[PlayerFeedbackEvent]
 
-        try:
-            logger.debug("__onPlayerFeedbackReceived(len: %s)", len(playerFeedbackEvents))
-            for playerFeedbackEvent in playerFeedbackEvents:
-                targetID = playerFeedbackEvent.getTargetID()
-                battleEventType = playerFeedbackEvent.getBattleEventType()
+        logger.debug("__onPlayerFeedbackReceived(len: %s)", len(playerFeedbackEvents))
+        for playerFeedbackEvent in playerFeedbackEvents:
+            targetID = playerFeedbackEvent.getTargetID()
+            battleEventType = playerFeedbackEvent.getBattleEventType()
 
-                if logger.isEnabledFor(logging.DEBUG):
-                    logger.debug("__onPlayerFeedbackReceived"
-                                 "(type: %s, targetID: %s, battleEventType: %s, role: %s, count: %s, extra: %s)",
-                                 FEEDBACK_EVENT_ID_TO_NAME[playerFeedbackEvent.getType()],
-                                 targetID,
-                                 BATTLE_EVENT_TYPE_TO_NAME[battleEventType],
-                                 playerFeedbackEvent.getRole(),
-                                 playerFeedbackEvent.getCount(),
-                                 playerFeedbackEvent.getExtra())
+            if logger.isEnabledFor(logging.DEBUG):
+                logger.debug("__onPlayerFeedbackReceived"
+                             "(type: %s, targetID: %s, battleEventType: %s, role: %s, count: %s, extra: %s)",
+                             FEEDBACK_EVENT_ID_TO_NAME[playerFeedbackEvent.getType()],
+                             targetID,
+                             BATTLE_EVENT_TYPE_TO_NAME[battleEventType],
+                             playerFeedbackEvent.getRole(),
+                             playerFeedbackEvent.getCount(),
+                             playerFeedbackEvent.getExtra())
 
-                if battleEventType == BATTLE_EVENT_TYPE.DAMAGE:
-                    damageExtra = playerFeedbackEvent.getExtra()  # type: _DamageExtra
-                    self._onPlayerDealingDamage(targetID, damageExtra)
-                elif battleEventType == BATTLE_EVENT_TYPE.CRIT:
-                    critsExtra = playerFeedbackEvent.getExtra()  # type: _CritsExtra
-                    self._onPlayerDealingCrits(targetID, critsExtra)
-                elif battleEventType == BATTLE_EVENT_TYPE.RECEIVED_DAMAGE:
-                    damageExtra = playerFeedbackEvent.getExtra()  # type: _DamageExtra
-                    self._onPlayerReceivedDamage(targetID, damageExtra)
-                elif battleEventType == BATTLE_EVENT_TYPE.RECEIVED_CRIT:
-                    critsExtra = playerFeedbackEvent.getExtra()  # type: _CritsExtra
-                    self._onPlayerReceivedCrits(targetID, critsExtra)
-                elif battleEventType == BATTLE_EVENT_TYPE.TANKING:
-                    damageExtra = playerFeedbackEvent.getExtra()  # type: _DamageExtra
-                    self._onPlayerBlockedDamage(targetID, damageExtra)
-                elif battleEventType == BATTLE_EVENT_TYPE.BASE_CAPTURE_DROPPED:
-                    captureDropCount = playerFeedbackEvent.getExtra()  # type: int
-                    self._onPlayerCaptureDrop(targetID, captureDropCount)
-                elif battleEventType == BATTLE_EVENT_TYPE.SPOTTED:
-                    visibilityExtra = playerFeedbackEvent.getExtra()  # type: _VisibilityExtra
-                    self._onPlayerSpottedEnemy(targetID, visibilityExtra)
-        except:
-            logger.error("Error occurred while handling player feedback event", exc_info=1)
+            if battleEventType == BATTLE_EVENT_TYPE.DAMAGE:
+                damageExtra = playerFeedbackEvent.getExtra()  # type: _DamageExtra
+                self._onPlayerDealingDamage(targetID, damageExtra)
+            elif battleEventType == BATTLE_EVENT_TYPE.CRIT:
+                critsExtra = playerFeedbackEvent.getExtra()  # type: _CritsExtra
+                self._onPlayerDealingCrits(targetID, critsExtra)
+            elif battleEventType == BATTLE_EVENT_TYPE.RECEIVED_DAMAGE:
+                damageExtra = playerFeedbackEvent.getExtra()  # type: _DamageExtra
+                self._onPlayerReceivedDamage(targetID, damageExtra)
+            elif battleEventType == BATTLE_EVENT_TYPE.RECEIVED_CRIT:
+                critsExtra = playerFeedbackEvent.getExtra()  # type: _CritsExtra
+                self._onPlayerReceivedCrits(targetID, critsExtra)
+            elif battleEventType == BATTLE_EVENT_TYPE.TANKING:
+                damageExtra = playerFeedbackEvent.getExtra()  # type: _DamageExtra
+                self._onPlayerBlockedDamage(targetID, damageExtra)
+            elif battleEventType == BATTLE_EVENT_TYPE.BASE_CAPTURE_DROPPED:
+                captureDropCount = playerFeedbackEvent.getExtra()  # type: int
+                self._onPlayerCaptureDrop(targetID, captureDropCount)
+            elif battleEventType == BATTLE_EVENT_TYPE.SPOTTED:
+                visibilityExtra = playerFeedbackEvent.getExtra()  # type: _VisibilityExtra
+                self._onPlayerSpottedEnemy(targetID, visibilityExtra)
 
+    @withNoException
     def _onPlayerDealingDamage(self, targetID, damageExtra):
         victimBattleData = self.battleSession.playerDatas.get(targetID, None)
         if victimBattleData is None:
@@ -225,12 +201,13 @@ class BattleStateCollector(object):
         damageDealt = damageExtra.getDamage()
         attackReasonID = damageExtra.getAttackReasonID()
 
-        damageEvent = DamageEvent(self.battleSession.player, victimBattleData, damageDealt, attackReasonID)
+        damageEvent = DamageEvent(self.player, victimBattleData, damageDealt, attackReasonID)
 
         logger.debug("_onPlayerDealingDamage %s", damageEvent)
         self.battleSession.playerDamageEvents.append(damageEvent)
         self.battleSession.onPlayerDealingDamage()
 
+    @withNoException
     def _onPlayerDealingCrits(self, targetID, critsExtra):
         victimBattleData = self.battleSession.playerDatas.get(targetID, None)
         if victimBattleData is None:
@@ -242,12 +219,13 @@ class BattleStateCollector(object):
         critsCount = critsExtra.getCritsCount()
         attackReasonID = critsExtra._CritsExtra__attackReasonID
 
-        critsEvent = CritsEvent(self.battleSession.player, victimBattleData, critsCount, attackReasonID)
+        critsEvent = CritsEvent(self.player, victimBattleData, critsCount, attackReasonID)
 
         logger.debug("_onPlayerDealingCrit %s", critsEvent)
         self.battleSession.playerCritsEvents.append(critsEvent)
         self.battleSession.onPlayerDealingCrits()
 
+    @withNoException
     def _onPlayerReceivedDamage(self, targetID, damageExtra):
         attackerBattleData = self.battleSession.playerDatas.get(targetID, None)
         if attackerBattleData is None:
@@ -259,12 +237,13 @@ class BattleStateCollector(object):
         damageDealt = damageExtra.getDamage()
         attackReasonID = damageExtra.getAttackReasonID()
 
-        damageEvent = DamageEvent(attackerBattleData, self.battleSession.player, damageDealt, attackReasonID)
+        damageEvent = DamageEvent(attackerBattleData, self.player, damageDealt, attackReasonID)
 
         logger.debug("_onPlayerReceivedDamage %s", damageEvent)
         self.battleSession.playerReceivedDamageEvents.append(damageEvent)
         self.battleSession.onPlayerReceivedDamage()
 
+    @withNoException
     def _onPlayerReceivedCrits(self, targetID, critsExtra):
         attackerBattleData = self.battleSession.playerDatas.get(targetID, None)
         if attackerBattleData is None:
@@ -276,12 +255,13 @@ class BattleStateCollector(object):
         critsCount = critsExtra.getCritsCount()
         attackReasonID = critsExtra._CritsExtra__attackReasonID
 
-        critsEvent = CritsEvent(attackerBattleData, self.battleSession.player, critsCount, attackReasonID)
+        critsEvent = CritsEvent(attackerBattleData, self.player, critsCount, attackReasonID)
 
         logger.debug("_onPlayerReceivedCrits %s", critsEvent)
         self.battleSession.playerReceivedCritsEvents.append(critsEvent)
         self.battleSession.onPlayerReceivedCrits()
 
+    @withNoException
     def _onPlayerBlockedDamage(self, targetID, damageExtra):
         attackerBattleData = self.battleSession.playerDatas.get(targetID, None)
         if attackerBattleData is None:
@@ -297,6 +277,7 @@ class BattleStateCollector(object):
         self.battleSession.playerBlockedDamageEvents.append(blockedDamageEvent)
         self.battleSession.onPlayerBlockedDamage()
 
+    @withNoException
     def _onPlayerCaptureDrop(self, targetID, captureDropCount):
         captureDropEvent = CaptureDropEvent(captureDropCount)
         logger.debug("_onPlayerCaptureDrop %s", captureDropEvent)
@@ -304,6 +285,7 @@ class BattleStateCollector(object):
         self.battleSession.playerCaptureDropEvents.append(captureDropEvent)
         self.battleSession.onPlayerCaptureDrop()
 
+    @withNoException
     def _onPlayerSpottedEnemy(self, targetID, visibilityExtra):
         victimBattleData = self.battleSession.playerDatas.get(targetID, None)
         if victimBattleData is None:
@@ -318,6 +300,7 @@ class BattleStateCollector(object):
         self.battleSession.playerSpottedEnemyEvents.append(spottedEnemyEvent)
         self.battleSession.onPlayerSpottedEnemy()
 
+    @withNoException
     def _onPlayerHit(self, vehicleID, hitFlags):
         if vehicleID == BigWorld.player().playerVehicleID:
             return
@@ -336,6 +319,7 @@ class BattleStateCollector(object):
         self.battleSession.playerHitEvents.append(hitEvent)
         self.battleSession.onPlayerHit()
 
+    @withNoException
     def _onPlayerReceivedHit(self, attackerID, maxHitEffectCode,
                              damage, damageFactor, lastMaterialIsShield):
         attackerBattleData = self.battleSession.playerDatas.get(attackerID, None)
@@ -353,29 +337,28 @@ class BattleStateCollector(object):
         self.battleSession.playerReceivedHitEvents.append(receivedHitEvent)
         self.battleSession.onPlayerReceivedHit()
 
+    @withNoException
     def _onVehicleKilled(self, victimID, killerID, equipmentID, reasonID, numVehiclesAffected):
-        try:
-            victimBattleData = self.battleSession.playerDatas.get(victimID, None)
-            if victimBattleData is None:
-                logger.warning("_onVehicleKilled: victimID %s is not recognized in registry, "
-                               "this should not happen",
-                               victimID)
-                return
+        victimBattleData = self.battleSession.playerDatas.get(victimID, None)
+        if victimBattleData is None:
+            logger.warning("_onVehicleKilled: victimID %s is not recognized in registry, "
+                           "this should not happen",
+                           victimID)
+            return
 
-            if killerID == BigWorld.player().playerVehicleID:
-                self._onVehicleKilledByPlayer(victimBattleData, reasonID)
+        if killerID == BigWorld.player().playerVehicleID:
+            self._onVehicleKilledByPlayer(victimBattleData, reasonID)
 
-            killerBattleData = self.battleSession.playerDatas.get(killerID, None)
-            if killerBattleData is None:
-                logger.warning("_onVehicleKilled: killerID %s is not recognized in registry, "
-                               "this should not happen",
-                               killerID)
-                return
+        killerBattleData = self.battleSession.playerDatas.get(killerID, None)
+        if killerBattleData is None:
+            logger.warning("_onVehicleKilled: killerID %s is not recognized in registry, "
+                           "this should not happen",
+                           killerID)
+            return
 
-            self._onVehicleDead(victimBattleData, killerBattleData, reasonID)
-        except:
-            logger.error("Error occurred while handling vehicle being destroyed", exc_info=1)
+        self._onVehicleDead(victimBattleData, killerBattleData, reasonID)
 
+    @withNoException
     def _onVehicleKilledByPlayer(self, victimBattleData, reasonID):
         playerEntity = BigWorld.player()
         victimEntity = BigWorld.entity(victimBattleData.vehicleID)
@@ -395,6 +378,7 @@ class BattleStateCollector(object):
         self.battleSession.playerKillEvents.append(killEvent)
         self.battleSession.onPlayerKill()
 
+    @withNoException
     def _onVehicleDead(self, victimBattleData, killerBattleData, reasonID):
         vehicleDeadEvent = VehicleDeadEvent(victimBattleData, killerBattleData, reasonID)
         logger.debug("_onVehicleDead %s", vehicleDeadEvent)

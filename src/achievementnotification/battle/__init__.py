@@ -2,7 +2,6 @@ import BigWorld
 import Event
 import constants
 from ClientArena import ClientArena
-from VehicleEffects import DamageFromShotDecoder
 
 from constants import VEHICLE_CLASSES, ATTACK_REASON_INDICES, ATTACK_REASON, VEHICLE_HIT_EFFECT
 from soft_exception import SoftException
@@ -47,8 +46,37 @@ class BattleSession(object):
     onPlayerSpottedEnemy = Event.Event()
     onVehicleDead = Event.Event()
 
-    playerDatas = None  # type: Dict[int, PlayerBattleData]
-    player = None  # type: PlayerBattleData
+    @property
+    def player(self):
+        # type: () -> PlayerBattleData
+        playerVehicleID = BigWorld.player().playerVehicleID
+        return self._getOrLoadPlayerData(playerVehicleID)
+
+    @property
+    def playerDatas(self):
+        # type: () -> Dict[int, PlayerBattleData]
+
+        # I'm not sure if arena removes entries from arena.vehicles but I for sure don't want that.
+        # I also don't want to create PlayerBattleData every time we call our battle session.
+        #
+        # So - we will create a cache, with fast arena.vehicles -> cache resync by presence.
+        #
+        # There MIGHT be a tiny chance of receiving some battle event
+        # even through arena.vehicles doesn't contain required players yet (they were not allocated there yet).
+        # In such case, BattleStateCollector will skip such event due to not present players in self.playerDatas,
+        # but it is better than breaking all events.
+        #
+        # Previous implementation relied on onPeriodChange event,
+        # but it might have happened INSTANTLY the player joined a battle,
+        # so it could receive empty arena.vehicles and crash on player access before any events.
+        #
+        # (I don't want to hook into arena.vehicles events because they are weird)
+        arena = BigWorld.player().arena  # type: ClientArena
+        for vehicleID in arena.vehicles.keys():
+            self._getOrLoadPlayerData(vehicleID)
+
+        return self._playerDatas
+
     displayedAchievementKeys = None  # type: Set[str]
 
     playerKillEvents = None  # type: List[KillEvent]
@@ -68,7 +96,7 @@ class BattleSession(object):
     _listeners = None  # type: List[BattleListener]
 
     def __init__(self):
-        self.playerDatas = {}
+        self._playerDatas = {}
         self.displayedAchievementKeys = set()
 
         self.playerKillEvents = []
@@ -84,26 +112,6 @@ class BattleSession(object):
         self.playerCaptureDropEvents = []
         self.playerSpottedEnemyEvents = []
         self.vehicleDeadEvents = []
-
-        arena = BigWorld.player().arena  # type: ClientArena
-        for vehicleID, arenaVehicle in arena.vehicles.iteritems():
-            # arenaVehicle is a dict with small info, but enough for our use case
-            # especially useful, because we preemptively know something about all players in a battle
-            #
-            # it's better than listening for Vehicle.onEnterWorld
-            # because ... most vehicles are not in render distance
-            self.playerDatas[vehicleID] = PlayerBattleData(
-                vehicleID=vehicleID,
-                name=arenaVehicle["name"],
-                vehicleTypeDescriptor=arenaVehicle["vehicleType"],
-                team=arenaVehicle["team"],
-                maxHealth=arenaVehicle["maxHealth"])
-
-        playerVehicleID = BigWorld.player().playerVehicleID
-        self.player = self.playerDatas[playerVehicleID]
-
-        enemyMaxHP = self.getEnemyMaxHP()
-        logger.debug("Enemy max HP: %s (%s for high caliber)", enemyMaxHP, 0.2 * enemyMaxHP)
 
         from achievementnotification.battle.achievement.anti_spg_fire_listener import AntiSpgFireListener
         from achievementnotification.battle.achievement.arsonist_listener import ArsonistListener
@@ -152,6 +160,26 @@ class BattleSession(object):
             SturdyListener(self),
             SupporterListener(self),
         ]
+
+    def _getOrLoadPlayerData(self, vehicleID):
+        playerData = self._playerDatas.get(vehicleID, None)
+        if playerData is not None:
+            return playerData
+
+        arena = BigWorld.player().arena  # type: ClientArena
+        arenaVehicle = arena.vehicles.get(vehicleID, None)  # type: dict
+        if arenaVehicle is None:
+            return None
+
+        self._playerDatas[vehicleID] = playerData = PlayerBattleData(
+            vehicleID=vehicleID,
+            name=arenaVehicle["name"],
+            vehicleTypeDescriptor=arenaVehicle["vehicleType"],
+            team=arenaVehicle["team"],
+            maxHealth=arenaVehicle["maxHealth"]
+        )
+
+        return playerData
 
     def startListeners(self):
         for listener in self._listeners:
