@@ -22,5 +22,5 @@ class HuntsmanListener(BattleListener):
             lambda playerData: playerData.vehicleClass == VehicleClass.LIGHT_TANK
         )
 
-        if killsOfLightTank == lightTankCount and lightTankCount >= 3:
+        if killsOfLightTank == lightTankCount and lightTankCount >= 2:
             self.display(AchievementRegistry.HUNTSMAN)
